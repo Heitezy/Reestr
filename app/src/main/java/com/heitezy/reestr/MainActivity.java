@@ -2,6 +2,7 @@ package com.heitezy.reestr;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -15,6 +16,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.text.InputType;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +26,10 @@ import java.io.IOException;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    static String textPerson = "";
+    static String textCompany = "";
+    static String signUri = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,16 +74,49 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClick(View view) throws IOException {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.setType("*/*");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText input = new EditText(this);
+        EditText editText = findViewById(R.id.editText);
+        EditText editText2 = findViewById(R.id.editText2);
+
         switch (view.getId()) {
             case (R.id.button3):
+                intent.setType("*/*");
                 startActivityForResult(Intent.createChooser(intent,"Select directory"), 1);
                 break;
             case (R.id.button5):
+                intent.setType("*/*");
                 startActivityForResult(Intent.createChooser(intent,"Select directory"), 2);
+                break;
+            case (R.id.button9):
+                builder.setTitle("Person");
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                // Set up the buttons
+                builder.setPositiveButton("OK", (dialog, which) -> textPerson = input.getText().toString());
+                builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+                builder.show();
+                break;
+            case (R.id.button10):
+                builder.setTitle("Company");
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                // Set up the buttons
+                builder.setPositiveButton("OK", (dialog, which) -> textCompany = input.getText().toString());
+                builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+                builder.show();
+                break;
+            case (R.id.button8):
+                intent.setType("image/*");
+                startActivityForResult(Intent.createChooser(intent,"Select image"), 3);
+                break;
             case (R.id.button15):
-                EditText editText = findViewById(R.id.editText);
-                EditText editText2 = findViewById(R.id.editText2);
                 Convertor.convert(editText.getText().toString(), editText2.getText().toString());
         }
     }
@@ -85,16 +124,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
             Uri uri = data.getData();
             String path = ASFUriHelper.getPath(this, uri);
-            EditText editText = findViewById(R.id.editText);
-            editText.setText(path);
-        } else if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
-            Uri uri = data.getData();
-            String path = ASFUriHelper.getPath(this, uri);
-            EditText editText = findViewById(R.id.editText2);
-            editText.setText(path);
+            switch (requestCode) {
+                case 1:
+                    EditText editText = findViewById(R.id.editText);
+                    editText.setText(path);
+                    break;
+                case 2:
+                    EditText editText2 = findViewById(R.id.editText2);
+                    editText2.setText(path);
+                    break;
+                case 3:
+                    signUri = path;
+            }
         }
 
     }

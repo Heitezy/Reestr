@@ -9,8 +9,4 @@
     <string name="company">Company</string>
     <string name="delete_unnecessary_files_after_convertation">Delete unnecessary files after convertation</string>
     <string name="convert">Convert</string>
-    <string name="new_folder">New folder</string>
-    <string name="new_folder_name">New folder name</string>
-    <string name="failed_to_create">Failed to create \'</string>
-    <string name="failed_folder">\' folder</string>
 </resources>

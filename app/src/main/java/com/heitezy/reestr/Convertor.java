@@ -20,6 +20,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 
+import static com.heitezy.reestr.MainActivity.signUri;
+import static com.heitezy.reestr.MainActivity.textCompany;
+import static com.heitezy.reestr.MainActivity.textPerson;
 import static com.itextpdf.text.Font.NORMAL;
 import static com.itextpdf.text.Rectangle.BOTTOM;
 import static com.itextpdf.text.Rectangle.TOP;
@@ -361,11 +364,12 @@ class Convertor {
 
         PdfPTable table = new PdfPTable(columnWidths);
         table.setWidthPercentage(100);
-        BaseFont arial = BaseFont.createFont("resources/Arial.ttf", BaseFont.IDENTITY_H, true);
+
+        BaseFont arial = BaseFont.createFont("/system/fonts/DroidSans.ttf", BaseFont.IDENTITY_H, true);
         Font font = new Font(arial, 10, NORMAL, GrayColor.GRAYBLACK);
 
         PdfPCell header_cell = new PdfPCell(new Phrase("Реєстр\nлікарських засобів, " +
-                "які надійшли до суб'єкта господарювання\n" + "mainUI.organizationtext" +"\n ", font));
+                "які надійшли до суб'єкта господарювання\n" + textCompany +"\n ", font));
         if (reestr_type == 3) {
             header_cell.setColspan(11);
         } else {
@@ -475,7 +479,7 @@ class Convertor {
         }
 
         PdfPCell footer_cell = new PdfPCell(new Phrase("\nРезультат вхідного контролю якості лікарських засобів " +
-                "здійснив — уповноважена особа " + "mainUI.personname" + "\n" + dateOfDocument, font));
+                "здійснив — уповноважена особа " + textPerson + "\n" + dateOfDocument, font));
         if (reestr_type == 3) {
             footer_cell.setColspan(11);
         } else {
@@ -484,11 +488,11 @@ class Convertor {
         footer_cell.setBorder(Rectangle.NO_BORDER);
         table.addCell(footer_cell);
 
-        File scan = new File("resources/sign.jpg");
+        File scan = new File(signUri);
         if (!scan.exists()) {
             System.out.println("Не выбран скан штампа.");
         } else {
-            Image image = Image.getInstance("resources/sign.jpg");
+            Image image = Image.getInstance(signUri);
             PdfPCell image_cell = new PdfPCell(image);
             if (reestr_type == 3) {
                 image_cell.setColspan(11);
