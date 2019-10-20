@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import android.view.MenuItem;
 import android.widget.EditText;
 
 import java.io.IOException;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     static String textPerson = "";
     static String textCompany = "";
     static String signUri = "";
+
+    SharedPreferences sPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        EditText editText = findViewById(R.id.editText);
+        loadText("input", editText);
+        EditText editText2 = findViewById(R.id.editText2);
+        loadText("output", editText2);
+        loadText("person", 1);
+        loadText("company", 2);
+        loadText("sign", 3);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> Snackbar.make(view, "Copyrights (C) Heitezy 2019", Snackbar.LENGTH_LONG)
@@ -75,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClick(View view) throws IOException {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final EditText input = new EditText(this);
+        EditText input = new EditText(this);
         EditText editText = findViewById(R.id.editText);
         EditText editText2 = findViewById(R.id.editText2);
 
@@ -92,10 +103,14 @@ public class MainActivity extends AppCompatActivity {
                 builder.setTitle("Person");
                 // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
                 input.setInputType(InputType.TYPE_CLASS_TEXT);
+                input.setText(textPerson);
                 builder.setView(input);
 
                 // Set up the buttons
-                builder.setPositiveButton("OK", (dialog, which) -> textPerson = input.getText().toString());
+                builder.setPositiveButton("OK", (dialog, which) -> {
+                    textPerson = input.getText().toString();
+                    saveText("person", textPerson);
+                });
                 builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
                 builder.show();
@@ -104,10 +119,14 @@ public class MainActivity extends AppCompatActivity {
                 builder.setTitle("Company");
                 // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
                 input.setInputType(InputType.TYPE_CLASS_TEXT);
+                input.setText(textCompany);
                 builder.setView(input);
 
                 // Set up the buttons
-                builder.setPositiveButton("OK", (dialog, which) -> textCompany = input.getText().toString());
+                builder.setPositiveButton("OK", (dialog, which) -> {
+                    textCompany = input.getText().toString();
+                    saveText("company", textCompany);
+                });
                 builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
                 builder.show();
@@ -127,19 +146,52 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_OK) {
             Uri uri = data.getData();
             String path = ASFUriHelper.getPath(this, uri);
+            int lastSlash = Objects.requireNonNull(path).lastIndexOf("/");
             switch (requestCode) {
                 case 1:
                     EditText editText = findViewById(R.id.editText);
+                    path = path.substring(0, lastSlash);
                     editText.setText(path);
+                    saveText("input", path);
                     break;
                 case 2:
                     EditText editText2 = findViewById(R.id.editText2);
+                    path = path.substring(0, lastSlash);
                     editText2.setText(path);
+                    saveText("output", path);
                     break;
                 case 3:
                     signUri = path;
+                    saveText("sign", path);
             }
         }
 
     }
+
+    void saveText(String variable, String data) {
+        sPref = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor ed = sPref.edit();
+        ed.putString(variable, data);
+        ed.apply();
+    }
+
+    void loadText(String variable, int data) {
+        sPref = getPreferences(MODE_PRIVATE);
+        switch (data) {
+            case 1:
+                textPerson = sPref.getString(variable, "");
+            case 2:
+                textCompany = sPref.getString(variable, "");
+            case 3:
+                signUri = sPref.getString(variable, "");
+        }
+    }
+
+    void loadText(String variable, EditText data) {
+        sPref = getPreferences(MODE_PRIVATE);
+        String savedText = sPref.getString(variable, "");
+        data.setText(savedText);
+    }
+
+
 }
